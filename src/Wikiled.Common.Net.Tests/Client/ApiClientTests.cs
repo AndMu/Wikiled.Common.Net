@@ -1,0 +1,118 @@
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using RichardSzalay.MockHttp;
+using Wikiled.Common.Net.Client;
+using Wikiled.Common.Net.Client.Serialization;
+
+namespace Wikiled.Common.Net.Tests.Client
+{
+    [TestFixture]
+    public class ApiClientTests
+    {
+        private HttpClient httpClient;
+
+        private ApiClient instance;
+
+        private MockHttpMessageHandler mockHttp;
+
+        private Uri baseUri;
+
+        [SetUp]
+        public void Setup()
+        {
+            mockHttp = new MockHttpMessageHandler();
+            httpClient = new HttpClient(mockHttp);
+            baseUri = new Uri("http://localhost");
+            instance = CreatePostApiClient();
+        }
+
+        [Test]
+        public async Task PostRequest()
+        {
+            // Setup a respond for the user api (including a wildcard in the URL)
+            mockHttp.When("http://localhost/test")
+                    .Respond("application/json", "{ value: {'name' : 'Test Result'}, 'StatusCode': 200}");
+            TestData argument  = new TestData();
+            var result = await instance.PostRequest<TestData, ServiceResult<TestData>>("test", argument, CancellationToken.None).ConfigureAwait(false);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
+            Assert.AreEqual("Test Result", result.Result.Value.Name);
+        }
+
+        [Test]
+        public async Task GetRequest()
+        {
+            mockHttp.When("http://localhost/test/argument")
+                    .Respond("application/json", "{ value: {'name' : 'Test Result'}, 'StatusCode': 200}");
+            var result = await instance.GetRequest<ServiceResult<TestData>>("test/argument", CancellationToken.None).ConfigureAwait(false);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
+            Assert.AreEqual("Test Result", result.Result.Value.Name);
+        }
+
+        [Test]
+        public async Task GetRequestString()
+        {
+            mockHttp.When("http://localhost/test/argument")
+                    .Respond("application/json", "{ value: 'Test Result', 'StatusCode': 200}");
+            var result = await instance.GetRequest<ServiceResult<string>>("test/argument", CancellationToken.None).ConfigureAwait(false);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
+            Assert.AreEqual("Test Result", result.Result.Value);
+        }
+
+        [Test]
+        public async Task GetRequestInt()
+        {
+            mockHttp.When("http://localhost/test/argument")
+                    .Respond("application/json", "{ Value: 1, 'StatusCode': 200}");
+            var result = await instance.GetRequest<ServiceResult<int>>("test/argument", CancellationToken.None).ConfigureAwait(false);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
+            Assert.AreEqual(1, result.Result.Value);
+        }
+
+        [Test]
+        public async Task GetRequestBool()
+        {
+            mockHttp.When("http://localhost/test/argument")
+                    .Respond("application/json", "{ Value: 'true', 'StatusCode': 200}");
+            var result = await instance.GetRequest<ServiceResult<bool>>("test/argument", CancellationToken.None).ConfigureAwait(false);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
+            Assert.AreEqual(true, result.Result.Value);
+            Assert.AreEqual(true, result.ReadAs<ServiceResult<bool>>().Value);
+        }
+
+        [Test]
+        public async Task GetRawRequest()
+        {
+            instance = new ApiClient(httpClient, baseUri, new ResponseDeserializerFactory());
+            mockHttp.When("http://localhost/test/argument")
+                    .Respond("application/json", "{ 'name' : 'Test Result'}");
+
+            var result = await instance.GetRequest<RawResponse<TestData>>("test/argument", CancellationToken.None).ConfigureAwait(false);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
+            Assert.AreEqual("Test Result", result.Result.Value.Name);
+            Assert.AreEqual("Test Result", result.ReadAs<TestData>().Name);
+        }
+
+        [Test]
+        public void Construct()
+        {
+            Assert.Throws<ArgumentNullException>(() => new ApiClient(null, baseUri, new ResponseDeserializerFactory()));
+            Assert.Throws<ArgumentNullException>(() => new ApiClient(httpClient, null, new ResponseDeserializerFactory()));
+            Assert.Throws<ArgumentNullException>(() => new ApiClient(null, null, new ResponseDeserializerFactory()));
+        }
+
+        private ApiClient CreatePostApiClient()
+        {
+            return new ApiClient(httpClient, baseUri, new ResponseDeserializerFactory());
+        }
+    }
+}
