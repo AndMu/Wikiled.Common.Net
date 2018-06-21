@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
 using Wikiled.Common.Net.Client;
@@ -12,6 +14,8 @@ namespace Wikiled.Common.Net.Tests.Client
     [TestFixture]
     public class StreamApiClientTests
     {
+        private readonly ILogger<StreamApiClient> logger = new Logger<StreamApiClient>(new NullLoggerFactory());
+
         private HttpClient httpClient;
 
         private StreamApiClient instance;
@@ -59,13 +63,14 @@ namespace Wikiled.Common.Net.Tests.Client
         [Test]
         public void Construct()
         {
-            Assert.Throws<ArgumentNullException>(() => new StreamApiClient(null, baseUri));
-            Assert.Throws<ArgumentNullException>(() => new StreamApiClient(httpClient, null));
+            Assert.Throws<ArgumentNullException>(() => new StreamApiClient(null, baseUri, logger));
+            Assert.Throws<ArgumentNullException>(() => new StreamApiClient(httpClient, null, logger));
+            Assert.Throws<ArgumentNullException>(() => new StreamApiClient(httpClient, baseUri, null));
         }
 
         private StreamApiClient CreateStreamApiClient()
         {
-            return new StreamApiClient(httpClient, baseUri);
+            return new StreamApiClient(httpClient, baseUri, logger);
         }
     }
 }

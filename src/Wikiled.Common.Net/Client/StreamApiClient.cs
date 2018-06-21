@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Wikiled.Common.Net.Client
@@ -15,9 +16,12 @@ namespace Wikiled.Common.Net.Client
 
         private readonly HttpClient client;
 
-        public StreamApiClient(HttpClient client, Uri baseUri)
+        private readonly ILogger<StreamApiClient> logging;
+
+        public StreamApiClient(HttpClient client, Uri baseUri, ILogger<StreamApiClient> logging)
         {
             this.baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
+            this.logging = logging ?? throw new ArgumentNullException(nameof(logging));
             this.client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
@@ -55,7 +59,14 @@ namespace Wikiled.Common.Net.Client
                            cancellationToken.IsCancellationRequested)
                     {
                         var data = JsonConvert.DeserializeObject<TResult>(theLine);
-                        observer.OnNext(data);
+                        if (data == null)
+                        {
+                            logging.LogWarning("No Data received: {0}", theLine);
+                        }
+                        else
+                        {
+                            observer.OnNext(data);
+                        }
                     }
 
                     response.Content = null;
@@ -65,6 +76,7 @@ namespace Wikiled.Common.Net.Client
             }
             catch (Exception e)
             {
+                logging.LogError(e, "Streaming error");
                 observer.OnError(e);
             }
         }
