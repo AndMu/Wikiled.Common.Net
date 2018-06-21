@@ -54,6 +54,11 @@ namespace Wikiled.Common.Net.Client
                 using (Stream dataStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
                 using (StreamReader theStreamReader = new StreamReader(dataStream))
                 {
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new HttpRequestException(response.ToString());
+                    }
+
                     string theLine;
                     while ((theLine = theStreamReader.ReadLine()) != null ||
                            cancellationToken.IsCancellationRequested)
