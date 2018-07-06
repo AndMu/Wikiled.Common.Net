@@ -10,7 +10,7 @@ namespace Wikiled.Common.Net.Tests.Client
         [Test]
         public void CreateErrorMessage()
         {
-            Assert.Throws<ArgumentException>(() => ResultsFactory.CreateErrorMessage(200, "Test"));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ResultsFactory.CreateErrorMessage(200, "Test"));
             var result = ResultsFactory.CreateErrorMessage(300, "Test");
             Assert.IsNotNull(result);
         }

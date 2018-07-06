@@ -1,4 +1,4 @@
-﻿using Wikiled.Common.Arguments;
+﻿using System;
 
 namespace Wikiled.Common.Net.Client
 {
@@ -6,7 +6,11 @@ namespace Wikiled.Common.Net.Client
     {
         public static ServiceResult<string> CreateErrorMessage(int code, string error)
         {
-            Guard.IsValid(() => code, code, i => (i < 200) || (i > 299), "Only error code is acceptable");
+            if (code >= 200 && code < 300)
+            {
+                throw new ArgumentOutOfRangeException("Only error code is acceptable", nameof(code));
+            }
+
             return new ServiceResult<string>(code, null, error);
         }
     }
