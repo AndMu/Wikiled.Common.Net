@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Reactive.Linq;
 using System.Threading;
@@ -58,6 +59,24 @@ namespace Wikiled.Common.Net.Tests.Client
             var result = await instance.PostRequest<TestData, TestData>("test", argument, CancellationToken.None).ToArray();
             Assert.AreEqual(2, result.Length);
             Assert.AreEqual("Test Result", result[0].Name);
+        }
+
+        [Test]
+        public void PostRequestWithErrorCode()
+        {
+            mockHttp.When("http://localhost/test")
+                .Respond(HttpStatusCode.BadRequest);
+            TestData argument = new TestData();
+            Assert.ThrowsAsync<HttpRequestException>(async () => await instance.PostRequest<TestData, TestData>("test", argument, CancellationToken.None).ToArray());
+        }
+
+        [Test]
+        public void ExceptionResponse()
+        {
+            mockHttp.When("http://localhost/test")
+                .Respond(new ExceptionThrowingContent(new Exception("Error")));
+            TestData argument = new TestData();
+            Assert.ThrowsAsync<Exception>(async () => await instance.PostRequest<TestData, TestData>("test", argument, CancellationToken.None).ToArray());
         }
 
         [Test]

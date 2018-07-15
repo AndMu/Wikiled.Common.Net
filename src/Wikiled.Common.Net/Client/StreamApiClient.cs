@@ -46,38 +46,41 @@ namespace Wikiled.Common.Net.Client
                     });
         }
 
-        private async Task ProcessStream<TResult>(Func<Task<HttpResponseMessage>> action, CancellationToken cancellationToken, IObserver<TResult> observer)
+        private async Task ProcessStream<TResult>(Func<Task<HttpResponseMessage>> action,
+            CancellationToken cancellationToken, IObserver<TResult> observer)
         {
             try
             {
                 using (HttpResponseMessage response = await action().ConfigureAwait(false))
-                using (Stream dataStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
-                using (StreamReader theStreamReader = new StreamReader(dataStream))
                 {
                     if (!response.IsSuccessStatusCode)
                     {
                         throw new HttpRequestException(response.ToString());
                     }
 
-                    string theLine;
-                    while ((theLine = theStreamReader.ReadLine()) != null ||
-                           cancellationToken.IsCancellationRequested)
+                    using (Stream dataStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                    using (StreamReader theStreamReader = new StreamReader(dataStream))
                     {
-                        var data = JsonConvert.DeserializeObject<TResult>(theLine);
-                        if (data == null)
+                        string theLine;
+                        while ((theLine = theStreamReader.ReadLine()) != null ||
+                               cancellationToken.IsCancellationRequested)
                         {
-                            logging.LogWarning("No Data received: {0}", theLine);
+                            var data = JsonConvert.DeserializeObject<TResult>(theLine);
+                            if (data == null)
+                            {
+                                logging.LogWarning("No Data received: {0}", theLine);
+                            }
+                            else
+                            {
+                                observer.OnNext(data);
+                            }
                         }
-                        else
-                        {
-                            observer.OnNext(data);
-                        }
+
+                        response.Content = null;
                     }
 
-                    response.Content = null;
+                    observer.OnCompleted();
                 }
-
-                observer.OnCompleted();
             }
             catch (Exception e)
             {
