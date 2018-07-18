@@ -103,6 +103,19 @@ namespace Wikiled.Common.Net.Tests.Client
         }
 
         [Test]
+        public async Task GetRawRequestString()
+        {
+            instance = new ApiClient(httpClient, baseUri, new ResponseDeserializerFactory());
+            mockHttp.When("http://localhost/test/argument")
+                .Respond("application/text", "Test Result");
+
+            var result = await instance.GetRequest<RawResponse<string>>("test/argument", CancellationToken.None).ConfigureAwait(false);
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
+            Assert.AreEqual("Test Result", result.Result.Value);
+        }
+
+        [Test]
         public void Construct()
         {
             Assert.Throws<ArgumentNullException>(() => new ApiClient(null, baseUri, new ResponseDeserializerFactory()));

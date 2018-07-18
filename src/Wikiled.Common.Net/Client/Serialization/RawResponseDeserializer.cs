@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Wikiled.Common.Reflection;
 
 namespace Wikiled.Common.Net.Client.Serialization
 {
@@ -31,7 +32,16 @@ namespace Wikiled.Common.Net.Client.Serialization
                     resolutionCache[type] = resultType;
                 }
 
-                var data = JsonConvert.DeserializeObject(responseBody, resultType);
+                object data;
+                if (resultType.IsPrimitive())
+                {
+                    data = ReflectionExtension.ConvertTo(resultType, responseBody);
+                }
+                else
+                {
+                    data = JsonConvert.DeserializeObject(responseBody, resultType);
+                }
+
                 result = (TResult)Activator.CreateInstance(type, response.StatusCode, data);
             }
 
