@@ -18,10 +18,10 @@ namespace Wikiled.Common.Net.Client
 
         private readonly ILogger<StreamApiClient> logging;
 
-        public StreamApiClient(HttpClient client, Uri baseUri, ILogger<StreamApiClient> logging)
+        public StreamApiClient(HttpClient client, Uri baseUri, ILoggerFactory logging)
         {
             this.baseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
-            this.logging = logging ?? throw new ArgumentNullException(nameof(logging));
+            this.logging = logging?.CreateLogger< StreamApiClient>() ?? throw new ArgumentNullException(nameof(logging));
             this.client = client ?? throw new ArgumentNullException(nameof(client));
         }
 
