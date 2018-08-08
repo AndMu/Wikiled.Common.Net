@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using RichardSzalay.MockHttp;
@@ -15,7 +14,7 @@ namespace Wikiled.Common.Net.Tests.Client
     [TestFixture]
     public class StreamApiClientTests
     {
-        private readonly ILogger<StreamApiClient> logger = new Logger<StreamApiClient>(new NullLoggerFactory());
+        private readonly NullLoggerFactory logger = new NullLoggerFactory();
 
         private HttpClient httpClient;
 
