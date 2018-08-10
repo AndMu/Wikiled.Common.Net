@@ -46,8 +46,7 @@ namespace Wikiled.Common.Net.Client
                     });
         }
 
-        private async Task ProcessStream<TResult>(Func<Task<HttpResponseMessage>> action,
-            CancellationToken cancellationToken, IObserver<TResult> observer)
+        private async Task ProcessStream<TResult>(Func<Task<HttpResponseMessage>> action, CancellationToken cancellationToken, IObserver<TResult> observer)
         {
             try
             {
@@ -62,8 +61,8 @@ namespace Wikiled.Common.Net.Client
                     using (StreamReader theStreamReader = new StreamReader(dataStream))
                     {
                         string theLine;
-                        while ((theLine = theStreamReader.ReadLine()) != null ||
-                               cancellationToken.IsCancellationRequested)
+                        while ((theLine = theStreamReader.ReadLine()) != null &&
+                               !cancellationToken.IsCancellationRequested)
                         {
                             var data = JsonConvert.DeserializeObject<TResult>(theLine);
                             if (data == null)
