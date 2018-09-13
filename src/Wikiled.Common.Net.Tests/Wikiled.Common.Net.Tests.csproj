@@ -19,6 +19,12 @@
     <ProjectReference Include="..\Wikiled.Common.Net\Wikiled.Common.Net.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Data\docs.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Name="ForceGenerationOfBindingRedirects" AfterTargets="ResolveAssemblyReferences" BeforeTargets="GenerateBindingRedirects" Condition="'$(AutoGenerateBindingRedirects)' == 'true'">
     <PropertyGroup>
       <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>

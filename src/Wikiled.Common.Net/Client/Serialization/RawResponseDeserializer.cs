@@ -14,38 +14,40 @@ namespace Wikiled.Common.Net.Client.Serialization
         public async Task<ServiceResponse<TResult>> GetData<TResult>(HttpResponseMessage response)
             where TResult : IApiResponse
         {
-            var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            TResult result = default(TResult);
-            var type = typeof(TResult);
-
-            if (!string.IsNullOrEmpty(responseBody))
+            string responseBody = default;
+            try
             {
-                if (!resolutionCache.TryGetValue(type, out var resultType))
+                responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                TResult result = default;
+                var type = typeof(TResult);
+
+                if (!string.IsNullOrEmpty(responseBody))
                 {
-                    var genericTypes = type.GenericTypeArguments;
-                    if (genericTypes.Length != 1)
+                    if (!resolutionCache.TryGetValue(type, out var resultType))
                     {
-                        throw new ArgumentOutOfRangeException(nameof(TResult), "RawResponse<T> is supported");
+                        var genericTypes = type.GenericTypeArguments;
+                        if (genericTypes.Length != 1)
+                        {
+                            throw new ArgumentOutOfRangeException(nameof(TResult), "RawResponse<T> is supported");
+                        }
+
+                        resultType = type.GenericTypeArguments[0];
+                        resolutionCache[type] = resultType;
                     }
 
-                    resultType = type.GenericTypeArguments[0];
-                    resolutionCache[type] = resultType;
+                    var data = resultType.IsPrimitive()
+                        ? ReflectionExtension.ConvertTo(resultType, responseBody)
+                        : JsonConvert.DeserializeObject(responseBody, resultType);
+
+                    result = (TResult)Activator.CreateInstance(type, response.StatusCode, data);
                 }
 
-                object data;
-                if (resultType.IsPrimitive())
-                {
-                    data = ReflectionExtension.ConvertTo(resultType, responseBody);
-                }
-                else
-                {
-                    data = JsonConvert.DeserializeObject(responseBody, resultType);
-                }
-
-                result = (TResult)Activator.CreateInstance(type, response.StatusCode, data);
+                return ServiceResponse<TResult>.CreateResponse(response, responseBody, result);
             }
-
-            return ServiceResponse<TResult>.CreateResponse(response, responseBody, result);
+            catch (Exception e)
+            {
+                throw new RequestException(response, responseBody, e);
+            }
         }
     }
 }
