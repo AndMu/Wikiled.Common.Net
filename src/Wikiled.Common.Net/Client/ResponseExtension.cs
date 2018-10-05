@@ -2,10 +2,11 @@
 
 namespace Wikiled.Common.Net.Client
 {
-    public class ResponseExtension
+    public static class ResponseExtension
     {
-        public async Task<T> ProcessResult<T>(ServiceResponse<RawResponse<T>> response)
+        public static async Task<T> ProcessResult<T>(this Task<ServiceResponse<RawResponse<T>>> responseTask)
         {
+            var response = await responseTask.ConfigureAwait(false);
             if (!response.IsSuccess)
             {
                 var content = await response.HttpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -15,8 +16,9 @@ namespace Wikiled.Common.Net.Client
             return response.Result.Value;
         }
 
-        public async Task<T> ProcessResult<T>(ServiceResponse<ServiceResult<T>> response)
+        public static async Task<T> ProcessResult<T>(this Task<ServiceResponse<ServiceResult<T>>> responseTask)
         {
+            var response = await responseTask.ConfigureAwait(false);
             if (!response.IsSuccess)
             {
                 var content = await response.HttpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
