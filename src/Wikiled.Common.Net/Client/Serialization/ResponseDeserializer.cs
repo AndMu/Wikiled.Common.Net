@@ -14,7 +14,7 @@ namespace Wikiled.Common.Net.Client.Serialization
             try
             {
                 responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                TResult data = default(TResult);
+                TResult data = default;
                 if (!string.IsNullOrEmpty(responseBody))
                 {
                     data = JsonConvert.DeserializeObject<TResult>(responseBody);

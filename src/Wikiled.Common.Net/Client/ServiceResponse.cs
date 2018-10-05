@@ -3,7 +3,8 @@ using Newtonsoft.Json;
 
 namespace Wikiled.Common.Net.Client
 {
-    public class ServiceResponse<T> where T : IApiResponse
+    public class ServiceResponse<T> 
+        where T : IApiResponse
     {
         private ServiceResponse()
         {

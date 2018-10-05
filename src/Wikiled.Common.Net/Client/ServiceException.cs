@@ -3,18 +3,15 @@ using System.Net.Http;
 
 namespace Wikiled.Common.Net.Client
 {
-    public class RequestException : Exception
+    public class ServiceException : Exception
     {
-        public RequestException(HttpResponseMessage response, string responseText, Exception innerException)
+        public ServiceException(HttpResponseMessage response, string responseText)
         {
             Response = response;
             ResponseText = responseText;
-            InnerException = innerException;
         }
 
         public string ResponseText { get; }
-
-        public new Exception InnerException { get; }
 
         public HttpResponseMessage Response { get; }
     }
