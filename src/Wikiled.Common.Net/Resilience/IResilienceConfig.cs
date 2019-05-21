@@ -8,8 +8,8 @@ namespace Wikiled.Common.Net.Resilience
 
         HttpStatusCode[] LongRetryCodes { get; }
 
-        int LongRetryDelay { get; }
+        int LongDelay { get; }
 
-        int ShortRetryDelay { get; }
+        int ShortDelay { get; }
     }
 }

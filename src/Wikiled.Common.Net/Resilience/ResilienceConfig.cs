@@ -8,16 +8,16 @@ namespace Wikiled.Common.Net.Resilience
 
         public HttpStatusCode[] LongRetryCodes { get; set; }
 
-        public int LongRetryDelay { get; set; }
+        public int LongDelay { get; set; }
 
-        public int ShortRetryDelay { get; set; }
+        public int ShortDelay { get; set; }
 
         public static IResilienceConfig GenerateCommon()
         {
             return new ResilienceConfig
             {
-                LongRetryDelay = 1000,
-                ShortRetryDelay = 1,
+                LongDelay = 1000 * 1000,
+                ShortDelay = 1000,
                 LongRetryCodes = new[] { HttpStatusCode.Forbidden },
                 RetryCodes = new[]
                 {

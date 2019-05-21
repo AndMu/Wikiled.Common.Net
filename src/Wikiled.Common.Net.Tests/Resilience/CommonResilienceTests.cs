@@ -1,9 +1,8 @@
+using System;
+using Microsoft.Extensions.Logging.Abstractions;
+using NUnit.Framework;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
-using NUnit.Framework;
 using Wikiled.Common.Net.Resilience;
 
 namespace Wikiled.Common.Net.Tests.Resilience
@@ -13,29 +12,37 @@ namespace Wikiled.Common.Net.Tests.Resilience
     {
         private CommonResilience instance;
 
+        private ResilienceConfig config; 
+
         [SetUp]
         public void SetUp()
         {
+            config = (ResilienceConfig)ResilienceConfig.GenerateCommon();
+            config.ShortDelay = 1;
+            config.LongDelay = 1;
             instance = CreateCommonResilience();
         }
 
-        [TestCase(WebExceptionStatus.Timeout, 2)]
-        public async Task TestWeb(WebExceptionStatus code, int result)
+        [TestCase(WebExceptionStatus.Timeout, 6)]
+        [TestCase(WebExceptionStatus.ConnectFailure, 6)]
+        public void TestWeb(WebExceptionStatus code, int result)
         {
             int total = 0;
-            await instance.WebPolicy.ExecuteAsync(
-                    () =>
-                    {
-                        result++;
-                        throw new WebException("Error", code);
-                    })
-                .ConfigureAwait(false);
+            Assert.ThrowsAsync<WebException>(async () =>
+                await instance.WebPolicy.ExecuteAsync(
+                        () =>
+                        {
+                            new WebResponse()
+                            total++;
+                            throw new WebException("Error", new Exception(), code, new HttpWebResponse());
+                        })
+                    .ConfigureAwait(false));
             Assert.AreEqual(result, total);
         }
 
         private CommonResilience CreateCommonResilience()
         {
-            return new CommonResilience(new NullLogger<CommonResilience>(), ResilienceConfig.GenerateCommon());
+            return new CommonResilience(new NullLogger<CommonResilience>(), config);
         }
     }
 }

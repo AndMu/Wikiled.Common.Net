@@ -27,6 +27,16 @@ namespace Wikiled.Common.Net.Resilience
                 throw new ArgumentNullException(nameof(config.LongRetryCodes));
             }
 
+            if (config.LongDelay <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(config.LongDelay));
+            }
+
+            if (config.ShortDelay <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(config.ShortDelay));
+            }
+
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.config = config;
             var httpStatusCodesWorthRetrying = config.LongRetryCodes.Concat(config.RetryCodes).ToArray();
@@ -47,7 +57,7 @@ namespace Wikiled.Common.Net.Resilience
             var webException = ex as WebException;
             if (webException == null)
             {
-                var waitTime = TimeSpan.FromSeconds(retries * config.ShortRetryDelay);
+                var waitTime = TimeSpan.FromMilliseconds(retries * config.ShortDelay);
                 logger.LogError(ex, "Error detected. Waiting {0}", waitTime);
                 return waitTime;
             }
@@ -57,12 +67,12 @@ namespace Wikiled.Common.Net.Resilience
             if (errorCode == null ||
                 !config.LongRetryCodes.Contains(errorCode.Value))
             {
-                var waitTime = TimeSpan.FromSeconds(retries * config.ShortRetryDelay);
+                var waitTime = TimeSpan.FromMilliseconds(retries * config.ShortDelay);
                 logger.LogError(ex, "Web Error detected. Waiting {0}", waitTime);
                 return waitTime;
             }
 
-            var wait = TimeSpan.FromSeconds(config.LongRetryDelay);
+            var wait = TimeSpan.FromMilliseconds(config.LongDelay);
             logger.LogError(ex, "Forbidden detected. Waiting {0}", wait);
             return wait;
         }
