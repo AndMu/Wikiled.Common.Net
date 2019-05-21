@@ -54,7 +54,7 @@ namespace Wikiled.Common.Net.Tests.Client
             var item = "{ 'name' : 'Test Result'}";
             mockHttp.When("http://localhost/test")
                 .Respond("application/json", item + Environment.NewLine + item);
-            TestData argument = new TestData();
+            var argument = new TestData();
             var result = await instance.PostRequest<TestData, TestData>("test", argument, CancellationToken.None).ToArray();
             Assert.AreEqual(2, result.Length);
             Assert.AreEqual("Test Result", result[0].Name);
@@ -65,7 +65,7 @@ namespace Wikiled.Common.Net.Tests.Client
         {
             mockHttp.When("http://localhost/test")
                 .Respond(HttpStatusCode.BadRequest);
-            TestData argument = new TestData();
+            var argument = new TestData();
             Assert.ThrowsAsync<HttpRequestException>(async () => await instance.PostRequest<TestData, TestData>("test", argument, CancellationToken.None).ToArray());
         }
 
@@ -74,7 +74,7 @@ namespace Wikiled.Common.Net.Tests.Client
         {
             mockHttp.When("http://localhost/test")
                 .Respond(new ExceptionThrowingContent(new Exception("Error")));
-            TestData argument = new TestData();
+            var argument = new TestData();
             Assert.ThrowsAsync<Exception>(async () => await instance.PostRequest<TestData, TestData>("test", argument, CancellationToken.None).ToArray());
         }
 

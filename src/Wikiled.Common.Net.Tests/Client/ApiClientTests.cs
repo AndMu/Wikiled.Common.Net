@@ -36,7 +36,7 @@ namespace Wikiled.Common.Net.Tests.Client
             // Setup a respond for the user api (including a wildcard in the URL)
             mockHttp.When("http://localhost/test")
                     .Respond("application/json", "{ value: {'name' : 'Test Result'}, 'StatusCode': 200}");
-            TestData argument  = new TestData();
+            var argument  = new TestData();
             var result = await instance.PostRequest<TestData, ServiceResult<TestData>>("test", argument, CancellationToken.None).ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccess);
             Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);

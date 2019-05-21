@@ -11,7 +11,7 @@ namespace Wikiled.Common.Net.Tests.Client
         [Test]
         public void ErrorResponse()
         {
-            HttpResponseMessage message = new HttpResponseMessage(HttpStatusCode.BadRequest);
+            var message = new HttpResponseMessage(HttpStatusCode.BadRequest);
             var request = ServiceResponse<ServiceResult<TestData>>.CreateResponse(message, "Error", null);
             Assert.AreEqual(HttpStatusCode.BadRequest, request.HttpResponseMessage.StatusCode);
             Assert.IsFalse(request.IsSuccess);
@@ -20,7 +20,7 @@ namespace Wikiled.Common.Net.Tests.Client
         [Test]
         public void GoodResponse()
         {
-            HttpResponseMessage message = new HttpResponseMessage(HttpStatusCode.OK);
+            var message = new HttpResponseMessage(HttpStatusCode.OK);
             var data = new ServiceResult<TestData>(200, new TestData(), "TestMessage");
             var request = ServiceResponse<ServiceResult<TestData>>.CreateResponse(message, "Test", data);
             Assert.AreEqual(HttpStatusCode.OK, request.HttpResponseMessage.StatusCode);

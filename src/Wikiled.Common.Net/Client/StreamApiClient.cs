@@ -50,15 +50,15 @@ namespace Wikiled.Common.Net.Client
         {
             try
             {
-                using (HttpResponseMessage response = await action().ConfigureAwait(false))
+                using (var response = await action().ConfigureAwait(false))
                 {
                     if (!response.IsSuccessStatusCode)
                     {
                         throw new HttpRequestException(response.ToString());
                     }
 
-                    using (Stream dataStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
-                    using (StreamReader theStreamReader = new StreamReader(dataStream))
+                    using (var dataStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                    using (var theStreamReader = new StreamReader(dataStream))
                     {
                         string theLine;
                         while ((theLine = theStreamReader.ReadLine()) != null &&
