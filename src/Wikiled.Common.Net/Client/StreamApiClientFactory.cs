@@ -24,7 +24,7 @@ namespace Wikiled.Common.Net.Client
         {
         }
 
-        public IStreamApiClient Contruct()
+        public IStreamApiClient Construct()
         {
             return new StreamApiClient(client, url, logger);
         }

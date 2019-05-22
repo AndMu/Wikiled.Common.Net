@@ -2,6 +2,6 @@
 {
     public interface IStreamApiClientFactory
     {
-        IStreamApiClient Contruct();
+        IStreamApiClient Construct();
     }
 }
