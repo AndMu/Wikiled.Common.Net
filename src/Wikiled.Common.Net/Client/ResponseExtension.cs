@@ -9,7 +9,9 @@ namespace Wikiled.Common.Net.Client
             var response = await responseTask.ConfigureAwait(false);
             if (!response.IsSuccess)
             {
-                var content = await response.HttpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var content = response.HttpResponseMessage?.Content == null
+                    ? string.Empty
+                    : await response.HttpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 throw new ServiceException(response.HttpResponseMessage, content);
             }
 
@@ -21,7 +23,9 @@ namespace Wikiled.Common.Net.Client
             var response = await responseTask.ConfigureAwait(false);
             if (!response.IsSuccess)
             {
-                var content = await response.HttpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var content = response.HttpResponseMessage?.Content == null
+                    ? string.Empty
+                    : await response.HttpResponseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
                 throw new ServiceException(response.HttpResponseMessage, content);
             }
 

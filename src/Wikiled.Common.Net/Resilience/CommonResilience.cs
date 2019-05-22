@@ -46,7 +46,6 @@ namespace Wikiled.Common.Net.Resilience
             WebPolicy = Policy
                 .Handle(WebException())
                 .Or(ServiceException())
-                .Or(RequestException())
                 .Or<IOException>()
                 .WaitAndRetryAsync(5,
                                    (retries, ex, ctx) => DelayRoutine(ex, retries),
@@ -83,8 +82,6 @@ namespace Wikiled.Common.Net.Resilience
             {
                 case ServiceException serviceException:
                     return serviceException.Response.StatusCode;
-                case RequestException requestException:
-                    return requestException.Response.StatusCode;
                 case WebException webException:
                 {
                     var response = webException.Response as HttpWebResponse;
@@ -96,11 +93,6 @@ namespace Wikiled.Common.Net.Resilience
         }
 
         private Func<ServiceException, bool> ServiceException()
-        {
-            return exception => httpStatusCodesWorthRetrying.Contains(exception.Response.StatusCode);
-        }
-
-        private Func<RequestException, bool> RequestException()
         {
             return exception => httpStatusCodesWorthRetrying.Contains(exception.Response.StatusCode);
         }

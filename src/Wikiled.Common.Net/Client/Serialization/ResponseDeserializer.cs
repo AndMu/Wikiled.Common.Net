@@ -13,7 +13,9 @@ namespace Wikiled.Common.Net.Client.Serialization
             string responseBody = default;
             try
             {
-                responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                responseBody = response.Content == null
+                    ? null
+                    : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 TResult data = default;
                 if (!string.IsNullOrEmpty(responseBody))
                 {
@@ -24,7 +26,7 @@ namespace Wikiled.Common.Net.Client.Serialization
             }
             catch (Exception e)
             {
-                throw new RequestException(response, responseBody, e);
+                throw new ServiceException(response, responseBody, e);
             }
         }
     }
