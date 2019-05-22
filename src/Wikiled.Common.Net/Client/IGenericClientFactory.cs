@@ -7,5 +7,7 @@ namespace Wikiled.Common.Net.Client
         IStreamApiClient ConstructStreaming(Uri url);
 
         IApiClient ConstructRegular(Uri url);
+
+        IResilientApiClient ConstructResilient(Uri url);
     }
 }
