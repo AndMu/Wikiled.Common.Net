@@ -2,8 +2,9 @@ using System;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using System.Net;
-using System.Threading.Tasks;
+using RichardSzalay.MockHttp;
 using Wikiled.Common.Net.Resilience;
+using Wikiled.Common.Net.Tests.Helpers;
 
 namespace Wikiled.Common.Net.Tests.Resilience
 {
@@ -23,20 +24,51 @@ namespace Wikiled.Common.Net.Tests.Resilience
             instance = CreateCommonResilience();
         }
 
-        [TestCase(WebExceptionStatus.Timeout, 6)]
-        [TestCase(WebExceptionStatus.ConnectFailure, 6)]
-        public void TestWeb(WebExceptionStatus code, int result)
+        [TestCase("http://ssssss", 6)]
+        public void xxx(string uri, int result)
         {
             int total = 0;
+            //var mockHttp = new MockHttpMessageHandler();
+            //mockHttp.Expect("http://localhost/api/user/*")
+            //        .Respond(HttpStatusCode.Unauthorized);
+            //var httpClient = mockHttp.ToHttpClient();
+            //var response = await httpClient.GetAsync("http://localhost/api/user/1234").ConfigureAwait(false);
+            //response.
+            //throw new WebException("Test", new Exception(), WebExceptionStatus.NameResolutionFailure, new HttpWebResponse());
+
             Assert.ThrowsAsync<WebException>(async () =>
                 await instance.WebPolicy.ExecuteAsync(
-                        () =>
+                        async () =>
                         {
-                            new WebResponse()
                             total++;
-                            throw new WebException("Error", new Exception(), code, new HttpWebResponse());
+                            WebRequest.Create("http://ssssss").GetResponse();
                         })
                     .ConfigureAwait(false));
+            Assert.AreEqual(result, total);
+        }
+
+        [TestCase(HttpStatusCode.Unauthorized, 1)]
+        [TestCase(HttpStatusCode.BadRequest, 1)]
+        [TestCase(HttpStatusCode.RequestTimeout, 6)]
+        public void TestWebRequest(HttpStatusCode code, int result)
+        {
+            int total = 0;
+            //var mockHttp = new MockHttpMessageHandler();
+            //mockHttp.Expect("http://localhost/api/user/*")
+            //        .Respond(HttpStatusCode.Unauthorized);
+            //var httpClient = mockHttp.ToHttpClient();
+            //var response = await httpClient.GetAsync("http://localhost/api/user/1234").ConfigureAwait(false);
+            //response.
+            //throw new WebException("Test", new Exception(), WebExceptionStatus.NameResolutionFailure, new HttpWebResponse());
+
+            Assert.ThrowsAsync<WebException>(async () =>
+                await instance.WebPolicy.ExecuteAsync( 
+                                  async () =>
+                                  {
+                                      total++;
+                                      throw new WebException("Test", new Exception(), WebExceptionStatus.Success, TestWebRequestCreate.CreateTestWebResponse("ss", code));
+                                  })
+                              .ConfigureAwait(false));
             Assert.AreEqual(result, total);
         }
 
