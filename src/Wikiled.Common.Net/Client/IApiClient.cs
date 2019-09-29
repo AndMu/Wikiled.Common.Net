@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Wikiled.Common.Net.Paging;
 
 namespace Wikiled.Common.Net.Client
 {
