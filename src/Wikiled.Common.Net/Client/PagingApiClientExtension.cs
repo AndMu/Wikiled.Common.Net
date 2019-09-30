@@ -8,15 +8,15 @@ namespace Wikiled.Common.Net.Client
 {
     public static class PagingApiClientExtension
     {
-        public static async Task<PagedList<TResult>> PostPaging<TInput, TResult>(this IApiClient client, string path, TInput argument,  PagingInfo info, CancellationToken token)
+        public static async Task<PagedList<TResult>> PostPagingRequest<TResult>(this IApiClient client, string path, PagingInfo info, CancellationToken token)
         {
             var result = await client.PostRequest<PagingInfo, RawResponse<TResult[]>>(path, info, token)
                                       .ConfigureAwait(false);
 
-            return ProcessResult<TInput, TResult>(info, result);
+            return ProcessResult(info, result);
         }
 
-        private static PagedList<TResult> ProcessResult<TInput, TResult>(PagingInfo info, ServiceResponse<RawResponse<TResult[]>> result)
+        private static PagedList<TResult> ProcessResult<TResult>(PagingInfo info, ServiceResponse<RawResponse<TResult[]>> result)
         {
             if (!result.IsSuccess)
             {
