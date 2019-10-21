@@ -23,6 +23,12 @@ namespace Wikiled.Common.Net.Client
                 throw new ApplicationException("Failed to retrieve:" + result.HttpResponseMessage);
             }
 
+            var resultItems = Array.Empty<TResult>();
+            if (result.Result?.Value != null)
+            {
+                resultItems = result.Result.Value;
+            }
+
             long count = 0;
             if (result.HttpResponseMessage.Headers.TryGetValues(PagingConstants.TotalHeader, out var header))
             {
@@ -33,7 +39,7 @@ namespace Wikiled.Common.Net.Client
                 }
             }
 
-            return new PagedList<TResult>(result.Result.Value, count, info);
+            return new PagedList<TResult>(resultItems, count, info);
         }
     }
 }
