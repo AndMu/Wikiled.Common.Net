@@ -23,7 +23,8 @@ namespace Wikiled.Common.Net.Client.Serialization
                 TResult result = default;
                 var type = typeof(TResult);
 
-                if (!string.IsNullOrEmpty(responseBody))
+                if (!string.IsNullOrEmpty(responseBody) && 
+                    response.IsSuccessStatusCode)
                 {
                     if (!resolutionCache.TryGetValue(type, out var resultType))
                     {
