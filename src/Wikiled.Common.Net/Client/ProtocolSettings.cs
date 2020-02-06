@@ -7,7 +7,8 @@ namespace Wikiled.Common.Net.Client
         public static JsonSerializerOptions SerializerOptions { get; } = new JsonSerializerOptions
         {
             IgnoreNullValues = true,
-            IgnoreReadOnlyProperties = true
+            IgnoreReadOnlyProperties = true,
+            PropertyNameCaseInsensitive = true
         };
     }
 }
