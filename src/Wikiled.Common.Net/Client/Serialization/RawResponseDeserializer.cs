@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Wikiled.Common.Reflection;
 
 namespace Wikiled.Common.Net.Client.Serialization
@@ -40,7 +40,7 @@ namespace Wikiled.Common.Net.Client.Serialization
 
                     var data = resultType.IsPrimitive()
                         ? ReflectionExtension.ConvertTo(resultType, responseBody)
-                        : JsonConvert.DeserializeObject(responseBody, resultType);
+                        : JsonSerializer.Deserialize(responseBody, resultType, ProtocolSettings.SerializerOptions);
 
                     result = (TResult)Activator.CreateInstance(type, response.StatusCode, data);
                 }

@@ -35,7 +35,7 @@ namespace Wikiled.Common.Net.Tests.Client
         {
             // Setup a respond for the user api (including a wildcard in the URL)
             mockHttp.When("http://localhost/test")
-                    .Respond("application/json", "{ value: {'name' : 'Test Result'}, 'StatusCode': 200}");
+                    .Respond("application/json", "{ \"Value\": {\"Name\" : \"Test Result\"}, \"StatusCode\": 200}");
             var argument  = new TestData();
             var result = await instance.PostRequest<TestData, ServiceResult<TestData>>("test", argument, CancellationToken.None).ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccess);
@@ -47,7 +47,7 @@ namespace Wikiled.Common.Net.Tests.Client
         public async Task GetRequest()
         {
             mockHttp.When("http://localhost/test/argument")
-                    .Respond("application/json", "{ value: {'name' : 'Test Result'}, 'StatusCode': 200}");
+                    .Respond("application/json", "{ \"Value\": {\"Name\" : \"Test Result\"}, \"StatusCode\": 200}");
             var result = await instance.GetRequest<ServiceResult<TestData>>("test/argument", CancellationToken.None).ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccess);
             Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
@@ -58,7 +58,7 @@ namespace Wikiled.Common.Net.Tests.Client
         public async Task GetRequestString()
         {
             mockHttp.When("http://localhost/test/argument")
-                    .Respond("application/json", "{ value: 'Test Result', 'StatusCode': 200}");
+                    .Respond("application/json", "{ \"Value\": \"Test Result\", \"StatusCode\": 200}");
             var result = await instance.GetRequest<ServiceResult<string>>("test/argument", CancellationToken.None).ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccess);
             Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
@@ -69,7 +69,7 @@ namespace Wikiled.Common.Net.Tests.Client
         public async Task GetRequestInt()
         {
             mockHttp.When("http://localhost/test/argument")
-                    .Respond("application/json", "{ Value: 1, 'StatusCode': 200}");
+                    .Respond("application/json", "{ \"Value\": 1, \"StatusCode\": 200}");
             var result = await instance.GetRequest<ServiceResult<int>>("test/argument", CancellationToken.None).ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccess);
             Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
@@ -80,7 +80,7 @@ namespace Wikiled.Common.Net.Tests.Client
         public async Task GetRequestBool()
         {
             mockHttp.When("http://localhost/test/argument")
-                    .Respond("application/json", "{ Value: 'true', 'StatusCode': 200}");
+                    .Respond("application/json", "{ \"Value\": true, \"StatusCode\": 200}");
             var result = await instance.GetRequest<ServiceResult<bool>>("test/argument", CancellationToken.None).ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccess);
             Assert.AreEqual(HttpStatusCode.OK, result.HttpResponseMessage.StatusCode);
@@ -93,7 +93,7 @@ namespace Wikiled.Common.Net.Tests.Client
         {
             instance = new ApiClient(httpClient, baseUri, new ResponseDeserializerFactory());
             mockHttp.When("http://localhost/test/argument")
-                    .Respond("application/json", "{ 'name' : 'Test Result'}");
+                    .Respond("application/json", "{ \"Name\" : \"Test Result\"}");
 
             var result = await instance.GetRequest<RawResponse<TestData>>("test/argument", CancellationToken.None).ConfigureAwait(false);
             Assert.IsTrue(result.IsSuccess);
