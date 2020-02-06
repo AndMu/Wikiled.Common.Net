@@ -38,8 +38,8 @@ namespace Wikiled.Common.Net.Client
                     _ = long.TryParse(item, out count);
                 }
             }
-
-            return new PagedList<TResult>(resultItems, count, info);
+            
+            return new PagedList<TResult>(resultItems, count, info, result);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace Wikiled.Common.Net.Client
 {
-    public class ServiceResponse<T> 
+    public class ServiceResponse<T> : IServiceResponse
         where T : IApiResponse
     {
         private ServiceResponse()
