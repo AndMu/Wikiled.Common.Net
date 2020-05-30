@@ -1,9 +1,9 @@
 ﻿using System.Net.Http;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace Wikiled.Common.Net.Client
 {
-    public class ServiceResponse<T> 
+    public class ServiceResponse<T> : IServiceResponse
         where T : IApiResponse
     {
         private ServiceResponse()
@@ -20,7 +20,7 @@ namespace Wikiled.Common.Net.Client
 
         public TResult ReadAs<TResult>()
         {
-            return JsonConvert.DeserializeObject<TResult>(Body);
+            return JsonSerializer.Deserialize<TResult>(Body, ProtocolSettings.SerializerOptions);
         }
 
         public static ServiceResponse<T> CreateResponse(HttpResponseMessage message, string body, T data)

@@ -21,7 +21,7 @@ namespace Wikiled.Common.Net.Tests.Client
         public void GoodResponse()
         {
             var message = new HttpResponseMessage(HttpStatusCode.OK);
-            var data = new ServiceResult<TestData>(200, new TestData(), "TestMessage");
+            var data = new ServiceResult<TestData> { StatusCode = 200, Value = new TestData(), Message = "TestMessage" };
             var request = ServiceResponse<ServiceResult<TestData>>.CreateResponse(message, "Test", data);
             Assert.AreEqual(HttpStatusCode.OK, request.HttpResponseMessage.StatusCode);
             Assert.AreEqual("TestMessage", request.Result.Message);

@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Wikiled.Common.Net.Client.Serialization
@@ -17,9 +17,10 @@ namespace Wikiled.Common.Net.Client.Serialization
                     ? null
                     : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 TResult data = default;
-                if (!string.IsNullOrEmpty(responseBody))
+                if (!string.IsNullOrEmpty(responseBody) &&
+                    response.IsSuccessStatusCode)
                 {
-                    data = JsonConvert.DeserializeObject<TResult>(responseBody);
+                    data = JsonSerializer.Deserialize<TResult>(responseBody, ProtocolSettings.SerializerOptions);
                 }
 
                 return ServiceResponse<TResult>.CreateResponse(response, responseBody, data);

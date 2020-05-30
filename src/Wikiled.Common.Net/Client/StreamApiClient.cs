@@ -3,10 +3,10 @@ using System.IO;
 using System.Net.Http;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Wikiled.Common.Net.Client
 {
@@ -31,7 +31,7 @@ namespace Wikiled.Common.Net.Client
                 (observer, cancellationToken) =>
                     {
                         return ProcessStream(
-                            () => client.PostAsync(new Uri(baseUri, action), new StringContent(JsonConvert.SerializeObject(argument), Encoding.UTF8, "application/json"), token),
+                            () => client.PostAsync(new Uri(baseUri, action), new StringContent(JsonSerializer.Serialize(argument, ProtocolSettings.SerializerOptions), Encoding.UTF8, "application/json"), token),
                             cancellationToken,
                             observer);
                     });
@@ -64,7 +64,7 @@ namespace Wikiled.Common.Net.Client
                         while ((theLine = theStreamReader.ReadLine()) != null &&
                                !cancellationToken.IsCancellationRequested)
                         {
-                            var data = JsonConvert.DeserializeObject<TResult>(theLine);
+                            var data = JsonSerializer.Deserialize<TResult>(theLine, ProtocolSettings.SerializerOptions);
                             if (data == null)
                             {
                                 logging.LogWarning("No Data received: {0}", theLine);

@@ -76,7 +76,7 @@ namespace Wikiled.Common.Net.Tests.Resilience
             int total = 0;
             Assert.ThrowsAsync<WebException>(async () =>
                 await instance.WebPolicy.ExecuteAsync(
-                                  async () =>
+                                  () =>
                                   {
                                       total++;
                                       throw new WebException("Test", new Exception(), WebExceptionStatus.Success, TestWebRequestCreate.CreateTestWebResponse("ss", code));

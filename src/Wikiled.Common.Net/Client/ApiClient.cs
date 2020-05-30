@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Wikiled.Common.Net.Client.Serialization;
 
 namespace Wikiled.Common.Net.Client
@@ -25,7 +25,7 @@ namespace Wikiled.Common.Net.Client
    
         public async Task<ServiceResponse<TResult>> PostRequest<TInput, TResult>(string action, TInput argument, CancellationToken token) where TResult : IApiResponse
         {
-            var response = await client.PostAsync(new Uri(baseUri, action), new StringContent(JsonConvert.SerializeObject(argument), Encoding.UTF8, "application/json"), token).ConfigureAwait(false);
+            var response = await client.PostAsync(new Uri(baseUri, action), new StringContent(JsonSerializer.Serialize(argument, ProtocolSettings.SerializerOptions), Encoding.UTF8, "application/json"), token).ConfigureAwait(false);
             return await deserializer.Construct<TResult>().GetData<TResult>(response).ConfigureAwait(false);
         }
 

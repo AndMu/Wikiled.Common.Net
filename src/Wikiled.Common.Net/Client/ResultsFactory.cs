@@ -11,7 +11,11 @@ namespace Wikiled.Common.Net.Client
                 throw new ArgumentOutOfRangeException("Only error code is acceptable", nameof(code));
             }
 
-            return new ServiceResult<string>(code, null, error);
+            return new ServiceResult<string>
+            {
+                StatusCode = code,
+                Message = error
+            };
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Wikiled.Common.Net.Tests.Client
         [Test]
         public async Task GetRawRequest()
         {
-            var item = "{ 'name' : 'Test Result'}";
+            var item = "{ \"Name\" : \"Test Result\"}";
             mockHttp.When("http://localhost/test/argument")
                     .Respond("application/json", item + Environment.NewLine + item);
 
@@ -51,7 +51,7 @@ namespace Wikiled.Common.Net.Tests.Client
         [Test]
         public async Task PostRequest()
         {
-            var item = "{ 'name' : 'Test Result'}";
+            var item = "{ \"Name\" : \"Test Result\"}";
             mockHttp.When("http://localhost/test")
                 .Respond("application/json", item + Environment.NewLine + item);
             var argument = new TestData();

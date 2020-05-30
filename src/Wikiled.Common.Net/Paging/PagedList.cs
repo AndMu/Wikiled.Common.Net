@@ -1,15 +1,19 @@
 ﻿using System;
+using Wikiled.Common.Net.Client;
 
 namespace Wikiled.Common.Net.Paging
 {
     public class PagedList<T>
     {
-        public PagedList(T[] source, long count, PagingInfo info)
+        public PagedList(T[] source, long count, PagingInfo info, IServiceResponse response)
         {
             Info = info ?? throw new ArgumentNullException(nameof(info));
+            Response = response ?? throw new ArgumentNullException(nameof(response));
             TotalItems = count;
             Data = source;
         }
+
+        public IServiceResponse Response { get; }
 
         public PagingInfo Info { get; }
 

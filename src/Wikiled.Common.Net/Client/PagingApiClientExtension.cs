@@ -8,19 +8,25 @@ namespace Wikiled.Common.Net.Client
 {
     public static class PagingApiClientExtension
     {
-        public static async Task<PagedList<TResult>> PostPaging<TInput, TResult>(this IApiClient client, string path, TInput argument,  PagingInfo info, CancellationToken token)
+        public static async Task<PagedList<TResult>> PostPagingRequest<TResult>(this IApiClient client, string path, PagingInfo info, CancellationToken token)
         {
             var result = await client.PostRequest<PagingInfo, RawResponse<TResult[]>>(path, info, token)
                                       .ConfigureAwait(false);
 
-            return ProcessResult<TInput, TResult>(info, result);
+            return ProcessResult(info, result);
         }
 
-        private static PagedList<TResult> ProcessResult<TInput, TResult>(PagingInfo info, ServiceResponse<RawResponse<TResult[]>> result)
+        private static PagedList<TResult> ProcessResult<TResult>(PagingInfo info, ServiceResponse<RawResponse<TResult[]>> result)
         {
             if (!result.IsSuccess)
             {
                 throw new ApplicationException("Failed to retrieve:" + result.HttpResponseMessage);
+            }
+
+            var resultItems = Array.Empty<TResult>();
+            if (result.Result?.Value != null)
+            {
+                resultItems = result.Result.Value;
             }
 
             long count = 0;
@@ -32,8 +38,8 @@ namespace Wikiled.Common.Net.Client
                     _ = long.TryParse(item, out count);
                 }
             }
-
-            return new PagedList<TResult>(result.Result.Value, count, info);
+            
+            return new PagedList<TResult>(resultItems, count, info, result);
         }
     }
 }
