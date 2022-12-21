@@ -1,34 +1,34 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">  
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-  </PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Moq" Version="4.14.1" />
-    <PackageReference Include="NUnit" Version="3.12.0" />
-	  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Moq" Version="4.18.3" />
+		<PackageReference Include="NUnit" Version="3.13.3" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.3.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="RichardSzalay.MockHttp" Version="6.0.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Wikiled.Common.Net\Wikiled.Common.Net.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Wikiled.Common.Net\Wikiled.Common.Net.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Data\docs.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Data\docs.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
-  <Target Name="ForceGenerationOfBindingRedirects" AfterTargets="ResolveAssemblyReferences" BeforeTargets="GenerateBindingRedirects" Condition="'$(AutoGenerateBindingRedirects)' == 'true'">
-    <PropertyGroup>
-      <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-    </PropertyGroup>
-  </Target>
+	<Target Name="ForceGenerationOfBindingRedirects" AfterTargets="ResolveAssemblyReferences" BeforeTargets="GenerateBindingRedirects" Condition="'$(AutoGenerateBindingRedirects)' == 'true'">
+		<PropertyGroup>
+			<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+		</PropertyGroup>
+	</Target>
 
 </Project>
