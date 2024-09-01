@@ -6,7 +6,7 @@ public record PagingInfo
 
     public int PageSize { get; init; } = 20;
 
-    public int Start => (PageSize * (PageNumber - 1)) + 1;
+    public int Start => PageSize * (PageNumber - 1);
 
-    public int End => PageSize * PageNumber;
+    public int End => (PageSize * PageNumber) - 1;
 }

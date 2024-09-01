@@ -7,8 +7,8 @@ namespace Wikiled.Common.Net.Tests.Paging;
 [TestFixture]
 public class PagingInfoTests
 {
-    [TestCase(1, 1, 10)]
-    [TestCase(2, 11, 20)]
+    [TestCase(1, 0, 9)]
+    [TestCase(2, 10, 19)]
     public void ValidatePaging(int page, int start, int end)
     {
         var pagingInfo = new PagingInfo
