@@ -5,52 +5,51 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Wikiled.Common.Reflection;
 
-namespace Wikiled.Common.Net.Client.Serialization
+namespace Wikiled.Common.Net.Client.Serialization;
+
+public class RawResponseDeserializer : IResponseDeserializer
 {
-    public class RawResponseDeserializer : IResponseDeserializer
+    private static readonly ConcurrentDictionary<Type, Type> ResolutionCache = new ConcurrentDictionary<Type, Type>();
+
+    public async Task<ServiceResponse<TResult>> GetData<TResult>(HttpResponseMessage response)
+        where TResult : IApiResponse
     {
-        private static readonly ConcurrentDictionary<Type, Type> resolutionCache = new ConcurrentDictionary<Type, Type>();
-
-        public async Task<ServiceResponse<TResult>> GetData<TResult>(HttpResponseMessage response)
-            where TResult : IApiResponse
+        string responseBody = default;
+        try
         {
-            string responseBody = default;
-            try
+            responseBody = response.Content == null
+                ? null
+                : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            TResult result = default;
+            var type = typeof(TResult);
+
+            if (!string.IsNullOrEmpty(responseBody) && 
+                response.IsSuccessStatusCode)
             {
-                responseBody = response.Content == null
-                    ? null
-                    : await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                TResult result = default;
-                var type = typeof(TResult);
-
-                if (!string.IsNullOrEmpty(responseBody) && 
-                    response.IsSuccessStatusCode)
+                if (!ResolutionCache.TryGetValue(type, out var resultType))
                 {
-                    if (!resolutionCache.TryGetValue(type, out var resultType))
+                    var genericTypes = type.GenericTypeArguments;
+                    if (genericTypes.Length != 1)
                     {
-                        var genericTypes = type.GenericTypeArguments;
-                        if (genericTypes.Length != 1)
-                        {
-                            throw new ArgumentOutOfRangeException(nameof(TResult), "RawResponse<T> is supported");
-                        }
-
-                        resultType = type.GenericTypeArguments[0];
-                        resolutionCache[type] = resultType;
+                        throw new ArgumentOutOfRangeException(nameof(TResult), "RawResponse<T> is supported");
                     }
 
-                    var data = resultType.IsPrimitive()
-                        ? ReflectionExtension.ConvertTo(resultType, responseBody)
-                        : JsonSerializer.Deserialize(responseBody, resultType, ProtocolSettings.SerializerOptions);
-
-                    result = (TResult)Activator.CreateInstance(type, response.StatusCode, data);
+                    resultType = type.GenericTypeArguments[0];
+                    ResolutionCache[type] = resultType;
                 }
 
-                return ServiceResponse<TResult>.CreateResponse(response, responseBody, result);
+                var data = resultType.IsPrimitive()
+                    ? ReflectionExtension.ConvertTo(resultType, responseBody)
+                    : JsonSerializer.Deserialize(responseBody, resultType, ProtocolSettings.SerializerOptions);
+
+                result = (TResult)Activator.CreateInstance(type, response.StatusCode, data);
             }
-            catch (Exception e)
-            {
-                throw new ServiceException(response, responseBody, e);
-            }
+
+            return ServiceResponse<TResult>.CreateResponse(response, responseBody, result);
+        }
+        catch (Exception e)
+        {
+            throw new ServiceException(response, responseBody, e);
         }
     }
 }

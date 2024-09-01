@@ -1,11 +1,10 @@
-﻿namespace Wikiled.Common.Net.Client
+﻿namespace Wikiled.Common.Net.Client;
+
+public class ServiceResult<T> : IApiResponse
 {
-    public class ServiceResult<T> : IApiResponse
-    {
-        public T Value { get; set; }
+    public T Value { get; set; }
 
-        public int StatusCode { get; set; }
+    public int StatusCode { get; set; }
 
-        public string Message { get; set; }
-    }
+    public string Message { get; set; }
 }

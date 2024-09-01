@@ -1,7 +1,6 @@
-﻿namespace Wikiled.Common.Net.Tests.Client
+﻿namespace Wikiled.Common.Net.Tests.Client;
+
+public class TestData
 {
-    public class TestData
-    {
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

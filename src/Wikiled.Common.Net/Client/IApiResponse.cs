@@ -1,9 +1,8 @@
-﻿namespace Wikiled.Common.Net.Client
-{
-    public interface IApiResponse
-    {
-        int StatusCode { get; }
+﻿namespace Wikiled.Common.Net.Client;
 
-        string Message { get; }
-    }
+public interface IApiResponse
+{
+    int StatusCode { get; }
+
+    string Message { get; }
 }

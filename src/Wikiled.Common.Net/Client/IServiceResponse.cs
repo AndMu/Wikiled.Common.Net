@@ -1,15 +1,14 @@
 ﻿using System.Net.Http;
 
-namespace Wikiled.Common.Net.Client
+namespace Wikiled.Common.Net.Client;
+
+public interface IServiceResponse
 {
-    public interface IServiceResponse
-    {
-        HttpResponseMessage HttpResponseMessage { get; }
+    HttpResponseMessage HttpResponseMessage { get; }
 
-        string Body { get; }
+    string Body { get; }
 
-        bool IsSuccess { get; }
+    bool IsSuccess { get; }
 
-        TResult ReadAs<TResult>();
-    }
+    TResult ReadAs<TResult>();
 }

@@ -1,18 +1,18 @@
 using System;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using Wikiled.Common.Net.Client;
 
-namespace Wikiled.Common.Net.Tests.Client
+namespace Wikiled.Common.Net.Tests.Client;
+
+[TestFixture]
+public class ResultsFactoryTests
 {
-    [TestFixture]
-    public class ResultsFactoryTests
+    [Test]
+    public void CreateErrorMessage()
     {
-        [Test]
-        public void CreateErrorMessage()
-        {
-            Assert.Throws<ArgumentOutOfRangeException>(() => ResultsFactory.CreateErrorMessage(200, "Test"));
-            var result = ResultsFactory.CreateErrorMessage(300, "Test");
-            Assert.IsNotNull(result);
-        }
+        ClassicAssert.Throws<ArgumentOutOfRangeException>(() => ResultsFactory.CreateErrorMessage(200, "Test"));
+        var result = ResultsFactory.CreateErrorMessage(300, "Test");
+        ClassicAssert.IsNotNull(result);
     }
 }

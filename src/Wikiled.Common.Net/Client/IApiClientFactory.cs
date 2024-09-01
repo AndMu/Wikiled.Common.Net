@@ -1,7 +1,6 @@
-namespace Wikiled.Common.Net.Client
+namespace Wikiled.Common.Net.Client;
+
+public interface IApiClientFactory
 {
-    public interface IApiClientFactory
-    {
-        IApiClient GetClient();
-    }
+    IApiClient GetClient();
 }

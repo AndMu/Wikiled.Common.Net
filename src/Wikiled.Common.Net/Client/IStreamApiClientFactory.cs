@@ -1,7 +1,6 @@
-﻿namespace Wikiled.Common.Net.Client
+﻿namespace Wikiled.Common.Net.Client;
+
+public interface IStreamApiClientFactory
 {
-    public interface IStreamApiClientFactory
-    {
-        IStreamApiClient Construct();
-    }
+    IStreamApiClient Construct();
 }

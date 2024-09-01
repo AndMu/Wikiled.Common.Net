@@ -1,15 +1,14 @@
 ﻿using System.Net;
 
-namespace Wikiled.Common.Net.Resilience
+namespace Wikiled.Common.Net.Resilience;
+
+public interface IResilienceConfig
 {
-    public interface IResilienceConfig
-    {
-        HttpStatusCode[] RetryCodes { get; }
+    HttpStatusCode[] RetryCodes { get; }
 
-        HttpStatusCode[] LongRetryCodes { get; }
+    HttpStatusCode[] LongRetryCodes { get; }
 
-        int LongDelay { get; }
+    int LongDelay { get; }
 
-        int ShortDelay { get; }
-    }
+    int ShortDelay { get; }
 }
