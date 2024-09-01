@@ -7,107 +7,109 @@ using System.Net;
 using System.Threading.Tasks;
 using Wikiled.Common.Net.Client;
 
-namespace Wikiled.Common.Net.Resilience
+namespace Wikiled.Common.Net.Resilience;
+
+public class CommonResilience : IResilience
 {
-    public class CommonResilience : IResilience
+    private readonly ILogger<CommonResilience> logger;
+
+    private readonly IResilienceConfig config;
+
+    private readonly ILookup<HttpStatusCode, HttpStatusCode> httpStatusCodesWorthRetrying;
+
+    public CommonResilience(ILogger<CommonResilience> logger, IResilienceConfig config)
     {
-        private readonly ILogger<CommonResilience> logger;
-
-        private readonly IResilienceConfig config;
-
-        private readonly ILookup<HttpStatusCode, HttpStatusCode> httpStatusCodesWorthRetrying;
-
-        public CommonResilience(ILogger<CommonResilience> logger, IResilienceConfig config)
+        if (config == null)
         {
-            if (config == null)
-            {
-                throw new ArgumentNullException(nameof(config));
-            }
-
-            if (config.LongRetryCodes == null)
-            {
-                throw new ArgumentNullException(nameof(config.LongRetryCodes));
-            }
-
-            if (config.LongDelay <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(config.LongDelay));
-            }
-
-            if (config.ShortDelay <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(config.ShortDelay));
-            }
-
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.config = config;
-            httpStatusCodesWorthRetrying = config.LongRetryCodes.Concat(config.RetryCodes).ToLookup(item => item, item => item);
-
-            WebPolicy = Policy
-                .Handle(WebException())
-                .Or(ServiceException())
-                .Or<IOException>()
-                .WaitAndRetryAsync(5,
-                                   (retries, ex, ctx) => DelayRoutine(ex, retries),
-                                   (ts, i, ctx, task) => Task.CompletedTask);
+            throw new ArgumentNullException(nameof(config));
         }
 
-        public IAsyncPolicy WebPolicy { get; }
-
-        private TimeSpan DelayRoutine(Exception ex, int retries)
+        if (config.LongRetryCodes == null)
         {
-            var errorCode = GetErrorCode(ex);
-            var waitTime = TimeSpan.FromMilliseconds(retries * config.ShortDelay);
+            throw new ArgumentNullException(nameof(config.LongRetryCodes));
+        }
 
-            if (errorCode == null)
-            {
-                logger.LogError(ex, "Generic Error detected ({1}). Waiting {0}...", waitTime, ex.Message);
-                return waitTime;
-            }
+        if (config.LongDelay <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(config.LongDelay));
+        }
 
-            if (config.LongRetryCodes.Contains(errorCode.Value))
-            {
-                waitTime = TimeSpan.FromMilliseconds(config.LongDelay);
-                logger.LogError(ex, "Long delay detected ({1}). Waiting {0}...", waitTime, errorCode);
-                return waitTime;
-            }
+        if (config.ShortDelay <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(config.ShortDelay));
+        }
 
-            logger.LogError(ex, "Web Error ({1}) detected. Waiting {0}...", waitTime, errorCode);
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.config = config;
+        httpStatusCodesWorthRetrying =
+            config.LongRetryCodes.Concat(config.RetryCodes).ToLookup(item => item, item => item);
+
+        WebPolicy = Policy
+            .Handle(WebException())
+            .Or(ServiceException())
+            .Or<IOException>()
+            .WaitAndRetryAsync(
+                5,
+                (retries, ex, ctx) => DelayRoutine(ex, retries),
+                (ts, i, ctx, task) => Task.CompletedTask);
+    }
+
+    public IAsyncPolicy WebPolicy { get; }
+
+    private TimeSpan DelayRoutine(Exception ex, int retries)
+    {
+        var errorCode = GetErrorCode(ex);
+        var waitTime = TimeSpan.FromMilliseconds(retries * config.ShortDelay);
+
+        if (errorCode == null)
+        {
+            logger.LogError(ex, "Generic Error detected ({1}). Waiting {0}...", waitTime, ex.Message);
             return waitTime;
         }
 
-        private HttpStatusCode? GetErrorCode(Exception ex)
+        if (config.LongRetryCodes.Contains(errorCode.Value))
         {
-            switch (ex)
+            waitTime = TimeSpan.FromMilliseconds(config.LongDelay);
+            logger.LogError(ex, "Long delay detected ({1}). Waiting {0}...", waitTime, errorCode);
+            return waitTime;
+        }
+
+        logger.LogError(ex, "Web Error ({1}) detected. Waiting {0}...", waitTime, errorCode);
+        return waitTime;
+    }
+
+    private HttpStatusCode? GetErrorCode(Exception ex)
+    {
+        switch (ex)
+        {
+            case ServiceException serviceException:
+                return serviceException.Response.StatusCode;
+            case WebException webException:
             {
-                case ServiceException serviceException:
-                    return serviceException.Response.StatusCode;
-                case WebException webException:
-                {
-                    var response = webException.Response as HttpWebResponse;
-                    return response?.StatusCode;
-                }
-                default:
-                    return null;
+                var response = webException.Response as HttpWebResponse;
+                return response?.StatusCode;
             }
-        }
 
-        private Func<ServiceException, bool> ServiceException()
-        {
-            return exception => httpStatusCodesWorthRetrying.Contains(exception.Response.StatusCode);
+            default:
+                return null;
         }
+    }
 
-        private Func<WebException, bool> WebException()
+    private Func<ServiceException, bool> ServiceException()
+    {
+        return exception => httpStatusCodesWorthRetrying.Contains(exception.Response.StatusCode);
+    }
+
+    private Func<WebException, bool> WebException()
+    {
+        return exception =>
         {
-            return exception =>
+            if (exception.Response is HttpWebResponse response)
             {
-                if (exception.Response is HttpWebResponse response)
-                {
-                    return httpStatusCodesWorthRetrying.Contains(response.StatusCode);
-                }
+                return httpStatusCodesWorthRetrying.Contains(response.StatusCode);
+            }
 
-                return true;
-            };
-        }
+            return true;
+        };
     }
 }

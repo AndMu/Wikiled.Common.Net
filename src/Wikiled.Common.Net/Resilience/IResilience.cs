@@ -1,9 +1,8 @@
 ﻿using Polly;
 
-namespace Wikiled.Common.Net.Resilience
+namespace Wikiled.Common.Net.Resilience;
+
+public interface IResilience
 {
-    public interface IResilience
-    {
-        IAsyncPolicy WebPolicy { get; }
-    }
+    IAsyncPolicy WebPolicy { get; }
 }

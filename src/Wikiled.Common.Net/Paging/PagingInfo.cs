@@ -1,13 +1,12 @@
-﻿namespace Wikiled.Common.Net.Paging
+﻿namespace Wikiled.Common.Net.Paging;
+
+public record PagingInfo
 {
-    public class PagingInfo
-    {
-        public int PageNumber { get; set; } = 1;
+    public int PageNumber { get; init; } = 1;
 
-        public int PageSize { get; set; } = 20;
+    public int PageSize { get; init; } = 20;
 
-        public int Start => PageSize * (PageNumber - 1);
+    public int Start => (PageSize * (PageNumber - 1)) + 1;
 
-        public int End => (PageSize * PageNumber - 1);
-    }
+    public int End => PageSize * PageNumber;
 }

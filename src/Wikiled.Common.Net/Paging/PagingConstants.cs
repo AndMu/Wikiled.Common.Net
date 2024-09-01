@@ -1,7 +1,6 @@
-﻿namespace Wikiled.Common.Net.Paging
+﻿namespace Wikiled.Common.Net.Paging;
+
+public class PagingConstants
 {
-    public class PagingConstants
-    {
-        public const string TotalHeader = "X-Total";
-    }
+    public const string TotalHeader = "X-Total";
 }

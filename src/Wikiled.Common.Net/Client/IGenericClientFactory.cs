@@ -1,13 +1,12 @@
 ﻿using System;
 
-namespace Wikiled.Common.Net.Client
+namespace Wikiled.Common.Net.Client;
+
+public interface IGenericClientFactory
 {
-    public interface IGenericClientFactory
-    {
-        IStreamApiClient ConstructStreaming(Uri url);
+    IStreamApiClient ConstructStreaming(Uri url);
 
-        IApiClient ConstructRegular(Uri url);
+    IApiClient ConstructRegular(Uri url);
 
-        IResilientApiClient ConstructResilient(Uri url);
-    }
+    IResilientApiClient ConstructResilient(Uri url);
 }

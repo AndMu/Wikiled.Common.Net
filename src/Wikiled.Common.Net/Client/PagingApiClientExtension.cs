@@ -4,42 +4,41 @@ using System.Threading;
 using System.Threading.Tasks;
 using Wikiled.Common.Net.Paging;
 
-namespace Wikiled.Common.Net.Client
+namespace Wikiled.Common.Net.Client;
+
+public static class PagingApiClientExtension
 {
-    public static class PagingApiClientExtension
+    public static async Task<PagedList<TResult>> PostPagingRequest<TResult>(this IApiClient client, string path, PagingInfo info, CancellationToken token)
     {
-        public static async Task<PagedList<TResult>> PostPagingRequest<TResult>(this IApiClient client, string path, PagingInfo info, CancellationToken token)
-        {
-            var result = await client.PostRequest<PagingInfo, RawResponse<TResult[]>>(path, info, token)
-                                      .ConfigureAwait(false);
+        var result = await client.PostRequest<PagingInfo, RawResponse<TResult[]>>(path, info, token)
+            .ConfigureAwait(false);
 
-            return ProcessResult(info, result);
+        return ProcessResult(info, result);
+    }
+
+    private static PagedList<TResult> ProcessResult<TResult>(PagingInfo info, ServiceResponse<RawResponse<TResult[]>> result)
+    {
+        if (!result.IsSuccess)
+        {
+            throw new ApplicationException("Failed to retrieve:" + result.HttpResponseMessage);
         }
 
-        private static PagedList<TResult> ProcessResult<TResult>(PagingInfo info, ServiceResponse<RawResponse<TResult[]>> result)
+        var resultItems = Array.Empty<TResult>();
+        if (result.Result?.Value != null)
         {
-            if (!result.IsSuccess)
-            {
-                throw new ApplicationException("Failed to retrieve:" + result.HttpResponseMessage);
-            }
+            resultItems = result.Result.Value;
+        }
 
-            var resultItems = Array.Empty<TResult>();
-            if (result.Result?.Value != null)
+        long count = 0;
+        if (result.HttpResponseMessage.Headers.TryGetValues(PagingConstants.TotalHeader, out var header))
+        {
+            var item = header.FirstOrDefault();
+            if (item != null)
             {
-                resultItems = result.Result.Value;
+                _ = long.TryParse(item, out count);
             }
-
-            long count = 0;
-            if (result.HttpResponseMessage.Headers.TryGetValues(PagingConstants.TotalHeader, out var header))
-            {
-                var item = header.FirstOrDefault();
-                if (item != null)
-                {
-                    _ = long.TryParse(item, out count);
-                }
-            }
+        }
             
-            return new PagedList<TResult>(resultItems, count, info, result);
-        }
+        return new PagedList<TResult>(resultItems, count, info, result);
     }
 }

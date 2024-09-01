@@ -1,7 +1,6 @@
-﻿namespace Wikiled.Common.Net.Client.Serialization
+﻿namespace Wikiled.Common.Net.Client.Serialization;
+
+public interface IResponseDeserializerFactory
 {
-    public interface IResponseDeserializerFactory
-    {
-        IResponseDeserializer Construct<T>();
-    }
+    IResponseDeserializer Construct<T>();
 }
